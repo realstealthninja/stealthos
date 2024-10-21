@@ -13,5 +13,6 @@
 
     loader:                         ; the loader label (defined as entry point in linker script)
         mov eax, 0xCAFEBABE         ; place the number 0xCAFEBABE in the register eax
+        mov [0x000B8000], dword 0x4128
     .loop:
         jmp .loop                   ; loop forever
