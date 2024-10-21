@@ -2,5 +2,5 @@
 *.elf
 *.iso
 
-
+*log.txt
 stage2_eltorito
