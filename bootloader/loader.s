@@ -4,6 +4,9 @@
     FLAGS        equ 0x0            ; multiboot flags
     CHECKSUM     equ -MAGIC_NUMBER  ; calculate the checksum
                                     ; (magic number + checksum + flags should equal 0)
+    KERNEL_STACK_SIZE equ 4096
+
+    extern sum_of_three
 
     section .text:                  ; start of the text (code) section
     align 4                         ; the code must be 4 byte aligned
@@ -12,7 +15,21 @@
         dd CHECKSUM                 ; and the checksum
 
     loader:                         ; the loader label (defined as entry point in linker script)
-        mov eax, 0xCAFEBABE         ; place the number 0xCAFEBABE in the register eax
-        mov [0x000B8000], dword 0x4128
+        mov esp, kernel_stack + KERNEL_STACK_SIZE
+
+        push dword 3
+        push dword 2
+        push dword 1
+        call sum_of_three
+    
     .loop:
         jmp .loop                   ; loop forever
+
+
+    
+
+    section .bss:
+    align 4
+    kernel_stack:
+        resb KERNEL_STACK_SIZE
+
