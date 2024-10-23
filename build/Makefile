@@ -29,7 +29,8 @@ run: stealthos.iso
 
 %.o: ../bootloader/%.s
 	$(AS) $(ASFLAGS) $< -o $@
-
+%.o: ../src/%.c
+	$(CC) $(CFLAGS) $< -o $@
 
 clean:
 	rm -rf *.o stealthos.iso
