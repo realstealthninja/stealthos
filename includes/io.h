@@ -35,7 +35,6 @@ void outb(unsigned short port, unsigned char data);
  * @note index should be updated by 2
  */
 void frame_buffer_write_cell(
-    unsigned int index,
     char character,
     unsigned char foreground,
     unsigned char background
@@ -54,7 +53,7 @@ void fb_move_cursor(unsigned int pos);
  * @param string the string to be displayed
  * @param len length of the string
  */
-void write(char *string, unsigned int len);
+void write(char *string);
 
 
 
