@@ -51,7 +51,6 @@ void fb_move_cursor(unsigned int pos);
  * @brief Writes a given string to the display
  * 
  * @param string the string to be displayed
- * @param len length of the string
  */
 void write(char *string);
 
