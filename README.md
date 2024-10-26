@@ -24,9 +24,9 @@ export PREFIX="/usr/local/cross" # where to install the cross compiler
 
 make a new directory somewhere inside your projects directory (if you have one)
 ```bash
-    mkdir cross
-    mkdir cross/build-binutils
-    mkdir corss/build-gcc
+mkdir cross
+mkdir cross/build-binutils
+mkdir cross/build-gcc
 ```
 
 
