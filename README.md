@@ -10,6 +10,7 @@ Cross compilers are compiler which can be used to compile code written in the ho
 
 I'll be storing my cross compiler in `/usr/local/cross` since im the administrator of my system.
 
+
 ### prequisites
 download the following for compiling a cross compiler.
 - binutils [release](https://sourceware.org/pub/binutils/releases/) preferably the latest.
@@ -18,9 +19,15 @@ download the following for compiling a cross compiler.
 
 Its also helpful to have the following enviornment variables
 ```bash
-export TARGET=i686-elf # specifing that our target platform is an x86_64 machine using the elf format
+export TARGET=x86_64 # specifing that our target platform is an x86_64 machine using the elf format
 export PREFIX="/usr/local/cross" # where to install the cross compiler
 ```
+> ![CAUTION]
+> DO NOT MINDLESSLY TYPE COMMANDS
+> You may mess up your local gcc/libgcc
+> these above variables get reset per shell
+> thus it is import to confirm that these are
+> properly set before typing commands
 
 make a new directory somewhere inside your projects directory (if you have one)
 ```bash
@@ -54,6 +61,26 @@ make install
 the `-j$(nproc)` just makes the compiler use all the available cores. i really didnt want to wait for this build
 
 And there you have it you have bin utils up
+
+### GCC
+similarily we will be compiling GCC.
+begin by switching to the gcc directory.
+
+Then you'll have to create a file named `t-x86_64-elf` inside`config/i386` make the directory if need be.
+
+```bash
+# Add libgcc multilib variant without red zone requirement
+
+MULTILIB_OPTION += mno-red-zone
+MULTILIB_DIRNAMES += no-red-zone
+```
+
+what we are doing here is disabling red zone. Which is explained very well in the [os dev wiki](https://wiki.osdev.org/Libgcc_without_red_zone)
+
+
+
+
+
 
 
 
