@@ -22,7 +22,7 @@ Its also helpful to have the following enviornment variables
 export TARGET=x86_64 # specifing that our target platform is an x86_64 machine using the elf format
 export PREFIX="/usr/local/cross" # where to install the cross compiler
 ```
-> ![CAUTION]
+> [!CAUTION]
 > DO NOT MINDLESSLY TYPE COMMANDS
 > You may mess up your local gcc/libgcc
 > these above variables get reset per shell
