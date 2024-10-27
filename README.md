@@ -38,12 +38,12 @@ mkdir cross/build-gcc
 
 
 ### binutils
-copy over the release you got into the `build-binutils` directory and extract it. You should have the source code inside this folder.
+extract the release you got then cd into the`build-binutils` directory.
 
 Next we must configure this source code to fit our job. thats via the configure executable inside this directory
 
 ```bash
-./configure --target=$TARGET --prefix="$PREFIX" --with-sysroot --disable-nls --disable-werror
+../binutils.x.x.x/configure --target=$TARGET --prefix="$PREFIX" --with-sysroot --disable-nls --disable-werror
 ```
 
 explanation of the above command
@@ -76,8 +76,6 @@ MULTILIB_DIRNAMES += no-red-zone
 ```
 
 what we are doing here is disabling red zone. Which is explained very well in the [os dev wiki](https://wiki.osdev.org/Libgcc_without_red_zone)
-
-
 
 
 
