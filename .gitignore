@@ -6,3 +6,4 @@
 stage2_eltorito
 
 build/
+compile_commands.json
