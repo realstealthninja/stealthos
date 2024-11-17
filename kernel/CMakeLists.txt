@@ -1,6 +1,8 @@
 project(kernel)
 
-add_executable(kernel.elf src/kernel.c boot/boot.s)
+add_executable(kernel.elf src/kernel.c src/tty.c boot/boot.s)
+
+target_include_directories(kernel.elf PRIVATE include/)
 
 target_compile_options(
     kernel.elf
