@@ -1,4 +1,5 @@
-//#include "../includes/io.h"
+#include <tty.h>
+
 
 /**
  * @brief Entry point of the os.
@@ -6,7 +7,8 @@
  * @return int 
  */
 int kmain() {
-    char h = 'a';
-    char b = 'b';
-    return h + b;
+    terminal_init();
+
+    terminal_write("Hello, world!", 13);
+    return 0;
 }
