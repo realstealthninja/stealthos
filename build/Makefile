@@ -1,6 +1,6 @@
 OBJECTS = boot.o kmain.o out.o io.o
 CC = gcc
-CFLAGS = -m32 -nostdlib -nostdinc -fno-builtin -fno-stack-protector \
+CFLAGS = -m64 -nostdlib -nostdinc -fno-builtin -fno-stack-protector \
 		 -nostartfiles -nodefaultlibs -Wall -Wextra -Werror -c
 LDFLAGS = -T ../bootloader/link.ld -melf_i386
 AS = nasm
