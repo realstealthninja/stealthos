@@ -1,8 +1,9 @@
 project(kernel)
 
-add_executable(kernel.elf src/kernel.c src/tty.c boot/boot.s)
+add_executable(kernel.elf src/kernel.c )
 
-target_include_directories(kernel.elf PRIVATE include/)
+target_link_libraries(kernel.elf PRIVATE stdlib)
+target_include_directories(kernel.elf PRIVATE include/ ../extern/limine)
 
 target_compile_options(
     kernel.elf
@@ -14,6 +15,7 @@ target_compile_options(
 	PRIVATE "-fno-lto"
 	PRIVATE "-fPIE"
 	PRIVATE "-m64"
+	PRIVATE "-mcmodel=large"
 	PRIVATE "-march=x86-64"
 	PRIVATE "-mno-80387"
 	PRIVATE "-mno-mmx"
