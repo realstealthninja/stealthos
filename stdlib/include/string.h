@@ -45,5 +45,16 @@ void *memmove(void *dest, const void *src, size_t num);
  */
 int memcmp(const void *ptr1, const void *ptr2, size_t num);
 
+/**
+ * @brief compares two strings
+ * 
+ * @param str1 string to be compared
+ * @param str2 string to be compared
+ * @return 0 if they are the same
+ * @return <0 if the first character that does not match has a lower value in str1 than str2
+ * @return >0 if the first character that does not match has a higher value in str1 than str2
+ */
+int strcmp(const char *str1, const char* str2);
+
 
 #endif // STRING_H
