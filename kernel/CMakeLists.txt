@@ -1,6 +1,6 @@
 project(kernel)
 
-add_executable(kernel.elf src/kernel.c )
+add_executable(kernel.elf src/kernel.c src/vga.c src/psf.c)
 
 target_link_libraries(kernel.elf PRIVATE stdlib)
 target_include_directories(kernel.elf PRIVATE include/ ../extern/limine)
