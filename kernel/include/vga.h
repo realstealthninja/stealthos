@@ -2,7 +2,6 @@
 #define VGA_H
 
 #include "limine.h"
-#include "psf.h"
 
 /**
  * @brief places a pixel with the specified coordinates and color
