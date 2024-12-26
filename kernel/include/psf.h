@@ -32,16 +32,16 @@ struct psf2_header {
 struct psf2_font {
     struct psf2_header *header;
     void *glyph_buffer;
+    uint16_t *unicode_table;
 } __attribute__((packed));
 
 
 struct psf1_font {
     struct psf1_header *header;
     void *glyph_buffer;
+    uint16_t *unicode_table;
 } __attribute__((packed));
 
-
-void map_to_unicode_psf1(struct psf1_font* font, uint16_t* unicode_table);
-void map_to_unicode_psf2(struct psf2_font* font, uint16_t* unicode_table);
+void map_to_unicode_psf1(struct psf1_font* font, uint8_t** unicode_table);
 
 #endif // PSF_H
