@@ -9,7 +9,7 @@ add_subdirectory(kernel/)
 # command to generate stealthos.iso
 add_custom_command(
     OUTPUT ${CMAKE_BINARY_DIR}/stealthos.iso
-    COMMAN ${CMAKE_COMMAND} -E chdir ../extern/limine/ make
+    COMMAND ${CMAKE_COMMAND} -E chdir ../extern/limine/ make
     COMMAND ${CMAKE_COMMAND} -E make_directory "iso/boot/limine"
     COMMAND ${CMAKE_COMMAND} -E make_directory "iso/boot/assets"
 
