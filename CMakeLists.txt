@@ -9,13 +9,12 @@ add_subdirectory(kernel/)
 # command to generate stealthos.iso
 add_custom_command(
     OUTPUT ${CMAKE_BINARY_DIR}/stealthos.iso
-    COMMAND ${CMAKE_COMMAND} -E chdir ../extern/limine/ make
+    COMMAN ${CMAKE_COMMAND} -E chdir ../extern/limine/ make
     COMMAND ${CMAKE_COMMAND} -E make_directory "iso/boot/limine"
     COMMAND ${CMAKE_COMMAND} -E make_directory "iso/boot/assets"
 
     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_BINARY_DIR}/kernel/kernel.elf ${CMAKE_BINARY_DIR}/iso/boot/kernel.elf
     COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different ${CMAKE_SOURCE_DIR}/assets/ ${CMAKE_BINARY_DIR}/iso/boot/assets/
-
 
     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/iso/limine.conf ${CMAKE_BINARY_DIR}/iso/boot/limine/limine.conf
     COMMAND ${CMAKE_COMMAND} -E copy_if_different ../extern/limine/limine-bios.sys ${CMAKE_BINARY_DIR}/iso/boot/limine/limine-bios.sys
@@ -46,5 +45,6 @@ add_custom_command(
 add_custom_target(iso
     DEPENDS ${CMAKE_BINARY_DIR}/stealthos.iso
 )
+
 
 #   run bochs -f bochsrc.txt -q

@@ -1,6 +1,6 @@
 project(kernel)
 
-add_executable(kernel.elf src/kernel.c src/vga.c src/psf.c)
+add_executable(kernel.elf src/kernel.c src/vga.c src/psf.c src/tty.c)
 
 target_link_libraries(kernel.elf PRIVATE stdlib)
 target_include_directories(kernel.elf PRIVATE include/ ../extern/limine)
@@ -15,7 +15,7 @@ target_compile_options(
 	PRIVATE "-fno-lto"
 	PRIVATE "-fPIE"
 	PRIVATE "-m64"
-	PRIVATE "-mcmodel=large"
+	PRIVATE "-mcmodel=large"	
 	PRIVATE "-march=x86-64"
 	PRIVATE "-mno-80387"
 	PRIVATE "-mno-mmx"
