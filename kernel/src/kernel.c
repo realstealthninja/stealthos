@@ -1,3 +1,4 @@
+#include "tty.h"
 #include "vga.h"
 #include <stddef.h>
 #include <stdbool.h>
@@ -84,7 +85,6 @@ int kmain() {
 
     struct limine_file *font_file = get_file("boot/assets/fonts/zap-vga16.psf");
 
-    asm("xchgw %bx, %bx");
     // check if we got the font
     if (font_file == NULL) {
         font_file = module_request.response->modules[0];
@@ -114,32 +114,13 @@ int kmain() {
     struct limine_framebuffer *framebuffer = framebuffer_request.response->framebuffers[0];
 
     // Note: we assume the framebuffer model is RGB with 32-bit pixels.
-    for (size_t y = 0; y < framebuffer->height; y++) {
-        for (size_t x = 0; x < framebuffer->width; x++) {
-            if ((y <= framebuffer->height / 2 ) && (x <= framebuffer->width / 2)) {
-                putpixel(framebuffer, x, y, 0xff0000);
-            } else if ((y <= framebuffer->height / 2 ) && (x > framebuffer->width / 2)) {
-                putpixel(framebuffer, x, y, 0x00ff00);
-            } else if ((y > framebuffer->height / 2 ) && (x <= framebuffer->width / 2)) {
-                putpixel(framebuffer, x, y, 0x0000ff);
-            } else if ((y > framebuffer->height / 2 ) && (x > framebuffer->width / 2)) {
-                putpixel(framebuffer, x, y, 0xff00ff);
-            }
-        }
-    }
     
-    uint8_t *unicode[256];
-    map_to_unicode_psf1(&font, unicode);
+    
+    char* helloworld = "Hello, World!\nWelcome to StealthyOS\0";
 
+    terminal_init(&font, framebuffer, 100, 80);
 
-    char* helloworld = "Hello, World!\0";
-
-    size_t index = 0;
-    while(*helloworld != '\0') {
-        putfont(framebuffer, unicode[(size_t)*helloworld], 100+ (index * 8), 0);
-        index++;
-        helloworld++;
-    }
+    terminal_writestring(helloworld);
 
     hcf();
     return 0;
