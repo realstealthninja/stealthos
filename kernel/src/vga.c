@@ -16,7 +16,8 @@ void putfont(
     struct limine_framebuffer *framebuffer,
     uint8_t* glyph,
     int _x,
-    int _y) {
+    int _y,
+    int color) {
 
     uint8_t* start = glyph;
     int index = 0;
@@ -25,8 +26,13 @@ void putfont(
         uint8_t line = *start;
 
         for(size_t i = 0; i < 8; i ++) {
+            // since psf1 fonts are encoded using little endian
+            // we must read the bits in this order
+            // that is from left to right
+            // what i tried to do before was 
+            // (line & 0x01) which mirrored the characters
             if(line & 0b10000000) {
-                putpixel(framebuffer, _x+i, _y+index, 0x00ff00);
+                putpixel(framebuffer, _x+i, _y+index, color);
             }
             line <<= 1;
         }
