@@ -1,5 +1,5 @@
+#include "serial.h"
 #include "tty.h"
-#include "vga.h"
 #include <stddef.h>
 #include <stdbool.h>
 #include <limine.h>
@@ -108,8 +108,6 @@ int kmain() {
     };
 
 
-
-
     // Fetch the first framebuffer.
     struct limine_framebuffer *framebuffer = framebuffer_request.response->framebuffers[0];
 
@@ -121,6 +119,11 @@ int kmain() {
     terminal_init(&font, framebuffer, 100, 80);
 
     terminal_writestring(helloworld);
+
+    serial_init();
+    serial_write_string("Hello, World!");
+    serial_write_string("\nWelcome to StealthyOS\0");
+
 
     hcf();
     return 0;
