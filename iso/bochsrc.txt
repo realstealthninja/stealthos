@@ -16,3 +16,4 @@
     error: action=report
     info: action=report
     pci:             slot1=pcivga
+    com1:             enabled=1, mode=file, dev=com1.out
