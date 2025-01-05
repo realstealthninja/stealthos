@@ -3,6 +3,8 @@ StealthOs is meant to be a study of operating systems, Beware I am not a very co
 developer. This code may contain bugs and errors and use at your own risk. If you do continue 
 Please try it in a virtual machine.
 
+
+# building
 The build process requires a [cross compiler](https://wiki.osdev.org/GCC_Cross-Compiler)
 
 ## Cross compilers
@@ -77,9 +79,45 @@ MULTILIB_DIRNAMES += no-red-zone
 
 what we are doing here is disabling red zone. Which is explained very well in the [os dev wiki](https://wiki.osdev.org/Libgcc_without_red_zone)
 
+edit gcc/config.gcc
+```bash
+ x86_64-*-elf*)
+	tmake_file="${tmake_file} i386/t-x86_64-elf" # include the new multilib configuration
+	tm_file="${tm_file} i386/unix.h i386/att.h elfos.h newlib-stdint.h i386/i386elf.h i386/x86-64.h"
+	;;
+```
 
+then build this;
+```bash
+# The $PREFIX/bin dir _must_ be in the PATH. We did that above.
+which -- $TARGET-as || echo $TARGET-as is not in the PATH
 
+mkdir build-gcc
+cd build-gcc
+../gcc-x.y.z/configure --target=$TARGET --prefix="$PREFIX" --disable-nls --enable-languages=c,c++ --without-headers --disable-hosted-libstdcxx
+make all-gcc
+make all-target-libgcc
+make all-target-libstdc++-v3
+make install-gcc
+make install-target-libgcc
+make install-target-libstdc++-v3
+```
+these commands were copied from the gcc cross compiler article
+of [osdev.org](https://wiki.osdev.org/GCC_Cross-Compiler)
 
+## building the os
+get the source code; git clone <link>.
+edit the TC-stealthos.cmake toolchain file
+put the path of the cross compiler in there
+
+```bash
+mkdir build
+cd build
+cmake .. --DCMAKE_TOOLCHAIN_FILE=TC-stealthos.cmake
+cmake --build . --target iso
+```
+
+and you'll have a stealthos.iso file
 
 
 ## resources used
