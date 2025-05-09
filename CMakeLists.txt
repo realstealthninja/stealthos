@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.30)
 project(StealthOS VERSION 0.1.0 LANGUAGES C ASM)
 set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 
-add_subdirectory(stdlib/)
+add_subdirectory(lib/)
 add_subdirectory(kernel/)
 
 # command to generate stealthos.iso
