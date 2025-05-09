@@ -4,6 +4,9 @@
 #include "limine.h"
 #include "psf.h"
 #include <stddef.h>
+#include <stdbool.h>
+
+static bool terminal_initalised = false;
 
 /**
  * @brief initialises the terminal
@@ -16,7 +19,7 @@ void terminal_init(
         struct psf1_font* font,
         struct limine_framebuffer* buffer,
         size_t height, size_t width
-        );
+);
 
 
 /**

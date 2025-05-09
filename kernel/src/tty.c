@@ -28,6 +28,7 @@ void terminal_init(
     terminal_buffer = buffer;
 
     map_to_unicode_psf1(terminal_font, glyphs);
+    terminal_initalised = true;
 }
 
 void terminal_putchar(char c) { 
