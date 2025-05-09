@@ -1,5 +1,10 @@
 #include "serial.h"
+#include "stdlib.h"
 #include "tty.h"
+#include "interupts.h"
+#include "keyboard.h"
+#include "pic.h"
+#include "utils.h"
 #include <stddef.h>
 #include <stdbool.h>
 #include <limine.h>
@@ -21,16 +26,15 @@ __attribute__((used, section(".limine_requests")))
 static volatile struct limine_module_request module_request = {
     .id = LIMINE_MODULE_REQUEST,
     .revision = 0,
-    
 };
-
 
 __attribute__((used, section(".limine_requests_start")))
 static volatile LIMINE_REQUESTS_START_MARKER;
+
 // requests are placed here
+
 __attribute__((used, section(".limine_requests_end")))
 static volatile LIMINE_REQUESTS_END_MARKER;
-
 
 // Halt and catch fire function.
 static void hcf(void) {
@@ -41,13 +45,12 @@ static void hcf(void) {
 }
 
 
-
 struct limine_file* get_file(const char* path) {
     struct limine_module_response *module_response = module_request.response;
 
 
     for(size_t i = 0; i < module_response->module_count; i++) {
-        if(strcmp(path, module_response->modules[i]->path) == 0) {
+        if(cstrcmp(path, module_response->modules[i]->path) == 0) {
             return module_response->modules[i];
         }
     }
@@ -115,16 +118,23 @@ int kmain() {
     
     
     char* helloworld = "Hello, World!\nWelcome to StealthyOS\0";
+    
 
     terminal_init(&font, framebuffer, 100, 80);
-
     terminal_writestring(helloworld);
 
     serial_init();
     serial_write_string("Hello, World!");
     serial_write_string("\nWelcome to StealthyOS\0");
+    serial_write_string("\nSerial works");
+    terminal_writestring("\nWired up the serial console");
+    idt_init();
+    terminal_writestring("\nWired up the Interrupt Descriptor Table");
+    PIC_init();
+    terminal_writestring("\nWired up the PICs");
+    keyboard_init();
 
-
+    // poll
     hcf();
     return 0;
 }
