@@ -1,0 +1,2 @@
+Checks: "readability-*,portability-*,bugprone-*"
+header-filter: ".*"
