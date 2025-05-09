@@ -1,7 +1,8 @@
-//#include <string.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <string.h>
 
+#define MIN(a, b) (a) < (b) ? (a) : (b)
 
 void *memcpy(void *dest, const void *src, size_t n) {
     uint8_t *pdest = (uint8_t *)dest;
@@ -34,7 +35,7 @@ void *memmove(void *dest, const void *src, size_t n) {
         }
     } else if (src < dest) {
         for (size_t i = n; i > 0; i--) {
-            pdest[i-1] = psrc[i-1];
+            pdest[i - 1] = psrc[i - 1];
         }
     }
 
@@ -54,13 +55,38 @@ int memcmp(const void *s1, const void *s2, size_t n) {
     return 0;
 }
 
-
-int strcmp(const char* str1, const char* str2) {
+int cstrcmp(const char *str1, const char *str2) {
     size_t i = 0;
-    for(; str1[i] == str2[i]; i++) {
-        if(str1[i] == '\0') {
+    for (; str1[i] == str2[i]; i++) {
+        if (str1[i] == '\0') {
             return 0;
         }
     }
     return str1[i] - str2[i];
 }
+
+char string_get(const String *str, size_t index) {
+    if (index <= str->length) {
+        return str->chars[index];
+    } else {
+        asm("hlt");
+        return 0;
+    }
+};
+
+int strcmp(const String *str1, const String *str2) {
+    // compare length of strings
+    size_t i = 0;
+    for (; i < (MIN(str1->length, str2->length)); i++) {
+        if (string_get(str1, i) != string_get(str2, i)) {
+            return string_get(str1, i) - string_get(str2, i);
+        }
+    }
+    
+    if (str1->length > str2->length) {
+        return string_get(str1, str2->length - 1);
+    } else {
+        return string_get(str2, str1->length - 1);
+    }
+    return 0;
+};

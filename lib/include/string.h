@@ -2,6 +2,15 @@
 #define STRING_H
 
 #include <stddef.h>
+#include <stdint.h>
+
+/**
+ * @struct String
+ */
+typedef struct {
+    char* chars; //< characters
+    int32_t length; //< length of string
+} String;
 
 /**
  * @brief Copies the values of num bytes from src to dest
@@ -46,7 +55,7 @@ void *memmove(void *dest, const void *src, size_t num);
 int memcmp(const void *ptr1, const void *ptr2, size_t num);
 
 /**
- * @brief compares two strings
+ * @brief compares two c strings
  * 
  * @param str1 string to be compared
  * @param str2 string to be compared
@@ -54,7 +63,10 @@ int memcmp(const void *ptr1, const void *ptr2, size_t num);
  * @return <0 if the first character that does not match has a lower value in str1 than str2
  * @return >0 if the first character that does not match has a higher value in str1 than str2
  */
-int strcmp(const char *str1, const char* str2);
+int cstrcmp(const char *str1, const char* str2);
+
+char string_get(const String* str, size_t index);
+
 
 
 #endif // STRING_H

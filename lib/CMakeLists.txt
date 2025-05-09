@@ -1,11 +1,11 @@
-project(stdlib)
+project(klib)
 
-add_library(stdlib src/string.c include/string.h)
+add_library(klib src/string.c include/string.h)
 
-target_include_directories(stdlib PUBLIC include/)
+target_include_directories(klib PUBLIC include/)
 
 target_compile_options(
-    stdlib
+    klib
     PRIVATE "-Wall"
     PRIVATE "-Wextra"
     PRIVATE "-ffreestanding"
