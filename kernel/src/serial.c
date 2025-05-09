@@ -20,6 +20,7 @@ void serial_configure_baud_rate(uint16_t com, uint16_t divisor) {
     );
 }
 
+
 void serial_configure_line(uint16_t com) {
     outb(SERIAL_LINE_COMMAND_PORT(com), 0x03);
 }
@@ -28,6 +29,7 @@ void serial_configure_line(uint16_t com) {
 void serial_configure_buffer(uint16_t com) {
     outb(SERIAL_LINE_COMMAND_PORT(com), 0xC7);
 }
+
 
 void serial_configure_modem(uint16_t com) {
     outb(SERIAL_LINE_COMMAND_PORT(com), 0x03);
@@ -46,6 +48,7 @@ void serial_init() {
     serial_configure_buffer(com);
     serial_configure_modem(com);
 }
+
 
 void serial_putc(char c) {
     uint16_t com = SERIAL_COM1_PORT;
