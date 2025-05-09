@@ -7,9 +7,13 @@ add_executable(
     src/psf.c
     src/tty.c
     src/serial.c
+    src/interrupts.c
+	src/interrupts.s
+	src/keyboard.c
+    src/pic.c
 )
 
-target_link_libraries(kernel.elf PRIVATE stdlib)
+target_link_libraries(kernel.elf PRIVATE klib)
 target_include_directories(kernel.elf PRIVATE include/ ../extern/limine)
 
 target_compile_options(
@@ -29,6 +33,7 @@ target_compile_options(
 	PRIVATE "-mno-sse"
 	PRIVATE "-mno-sse2"
 	PRIVATE "-mno-red-zone"
+	PRIVATE "-save-temps"
 )
 
 target_link_options(
