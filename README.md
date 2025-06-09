@@ -21,7 +21,7 @@ download the following for compiling a cross compiler.
 
 Its also helpful to have the following enviornment variables
 ```bash
-export TARGET=x86_64 # specifing that our target platform is an x86_64 machine using the elf format
+export TARGET=x86_64-elf # specifing that our target platform is an x86_64 machine using the elf format
 export PREFIX="/usr/local/cross" # where to install the cross compiler
 ```
 > [!CAUTION]
