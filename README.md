@@ -73,7 +73,7 @@ Then you'll have to create a file named `t-x86_64-elf` inside`config/i386` make 
 ```bash
 # Add libgcc multilib variant without red zone requirement
 
-MULTILIB_OPTION += mno-red-zone
+MULTILIB_OPTIONS += mno-red-zone
 MULTILIB_DIRNAMES += no-red-zone
 ```
 
