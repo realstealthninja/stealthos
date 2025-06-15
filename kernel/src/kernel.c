@@ -1,10 +1,9 @@
-#include "serial.h"
+#include "io/ps2.h"
+#include "io/serial.h"
 #include "stdlib.h"
 #include "tty.h"
-#include "interupts.h"
-#include "keyboard.h"
+#include "interrupts.h"
 #include "pic.h"
-#include "utils.h"
 #include <stddef.h>
 #include <stdbool.h>
 #include <limine.h>
@@ -132,7 +131,8 @@ int kmain() {
     terminal_writestring("\nWired up the Interrupt Descriptor Table");
     PIC_init();
     terminal_writestring("\nWired up the PICs");
-    keyboard_init();
+    ps2_controller_init();
+    terminal_writestring("\nWired up the ps2 ports");
 
     // poll
     hcf();

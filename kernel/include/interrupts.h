@@ -1,5 +1,5 @@
-#ifndef INTERUPTS_H
-#define INTERUPTS_H
+#ifndef INTERRUPTS_H
+#define INTERRUPTS_H
 
 #include <stdint.h>
 
@@ -48,4 +48,4 @@ extern void* isr_stub_table[];
 
 void idt_init(void);
 
-#endif // INTERUPTS_H
+#endif // INTERRUPTS_H
