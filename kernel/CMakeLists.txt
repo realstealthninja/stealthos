@@ -6,13 +6,14 @@ add_executable(
     src/vga.c
     src/psf.c
     src/tty.c
-    src/serial.c
+    src/io/serial.c
     src/interrupts.c
 	src/interrupts.s
-	src/keyboard.c
+	src/io/keyboard.c
     src/pic.c
+	src/io/ps2.c
 )
-
+set(CMAKE_C_STANDARD 23)
 target_link_libraries(kernel.elf PRIVATE klib)
 target_include_directories(kernel.elf PRIVATE include/ ../extern/limine)
 
