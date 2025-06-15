@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include "interupts.h" 
+#include "io/serial.h"
 #include "limine.h"
 #include "stdbool.h"
 
@@ -24,7 +25,8 @@ uint64_t irq_handlers[IDT_MAX_DESCRIPTORS];
 
 
 void exception_handler() {
-    asm volatile ("cli; hlt"); 
+    asm volatile ("cli");
+    asm volatile ("hlt"); 
 }
 
 
