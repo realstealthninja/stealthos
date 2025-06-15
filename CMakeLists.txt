@@ -6,6 +6,8 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 add_subdirectory(lib/)
 add_subdirectory(kernel/)
 
+set(CMAKE_BUILD_TYPE Debug)
+
 # command to generate stealthos.iso
 add_custom_command(
     OUTPUT ${CMAKE_BINARY_DIR}/stealthos.iso
