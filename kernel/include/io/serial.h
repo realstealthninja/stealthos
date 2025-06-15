@@ -6,7 +6,7 @@
 #ifndef SERIAL_H
 #define SERIAL_H
 
-#include "tty.h"
+#include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
 
