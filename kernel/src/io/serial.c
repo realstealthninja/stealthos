@@ -1,5 +1,5 @@
 #include "utils.h"
-#include <serial.h>
+#include <io/serial.h>
 #include <stdint.h>
 
 
@@ -71,6 +71,7 @@ void serial_write_string(char* data) {
     while(*data != '\0') {
         serial_putc(*data++);
     }
+    serial_putc('\n');
 }
 
 
