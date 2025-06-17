@@ -1,7 +1,7 @@
 #include "io/keyboard.h"
 #include "tty.h"
 #include "utils.h"
-#include "interupts.h"
+#include "interrupts.h"
 
 
 static bool sending = false;
