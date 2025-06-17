@@ -1,6 +1,5 @@
 #include <stdint.h>
-#include "interupts.h" 
-#include "io/serial.h"
+#include "interrupts.h" 
 #include "limine.h"
 #include "stdbool.h"
 
