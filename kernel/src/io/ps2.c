@@ -22,7 +22,7 @@ uint8_t ps2_status() {
 void ps2_wait_for_input() {
     int counter = 0;
     while((ps2_status() & INPUT_BUFFER_STATUS) != 0) {
-        asm("nop");
+        asm("pause");
         counter++;
 
         if (counter > 1000) {
@@ -39,8 +39,8 @@ void ps2_wait_for_input() {
  */
 void ps2_wait_for_ouput() {
     int counter = 0;
-    while((ps2_status() & OUTPUT_BUFFER_STATUS) != 1) {
-        asm("nop");
+    while(((ps2_status() & OUTPUT_BUFFER_STATUS) != 1)) {
+        asm("pause");
         counter++;
         if (counter > 100) {
             has_timed_out = true;
@@ -67,7 +67,7 @@ void ps2_send_cmd(uint8_t cmd) {
 void ps2_send_data(uint8_t data) {
     ps2_wait_for_input();
     if (has_timed_out) {
-        serial_write_string("ps2_TIMED_OUT");
+        serial_write_string("Warning: ps2 waiting for output timed out");
         return;
     }
     outb(PS2_CONTROLLER_DATA_PORT, data);
@@ -84,7 +84,7 @@ uint8_t ps2_get_data() {
     }
     ps2_wait_for_ouput();
     if (has_timed_out) {
-        serial_write_string("ps2_TIMED_OUT");
+        serial_write_string("Warning: ps2 waiting for output timed out");
         return 0x00;
     }
     
@@ -94,51 +94,63 @@ uint8_t ps2_get_data() {
 void identify_ps2_device(struct ps2_port port, uint8_t first_byte) {
     switch (first_byte) {
         case 0x00:
-            port.device_type = PS2_MOUSE;
+            port.device_model = PS2_MOUSE;
+            port.device_type = MOUSE;
             break;
         case 0x03:
-            port.device_type = MOUSE_WITH_SCROLL_WHEEL;
+            port.device_model = MOUSE_WITH_SCROLL_WHEEL;
+            port.device_type = MOUSE;
             break;
         case 0x04:
-            port.device_type = MOUSE_WITH_5_BUTTONS;
+            port.device_model = MOUSE_WITH_5_BUTTONS;
+            port.device_type = MOUSE;
             break;
         case 0xAB:
             uint8_t second_byte = ps2_get_data();
             switch (second_byte) {
                 case 0x83:
                 case 0xC1:
-                    port.device_type = MF2_KEYBOARD;
+                    port.device_model = MF2_KEYBOARD;
+                    port.device_type = KEYBOARD;
                     break;
                 case 0x84:
-                    port.device_type = SHORT_KEYBOARD;
+                    port.device_model = SHORT_KEYBOARD;
+                    port.device_type = KEYBOARD;
                     break;
                 case 0x85:
-                    port.device_type = NCD_N97_KEYBOARD;
+                    port.device_model = NCD_N97_KEYBOARD;
+                    port.device_type = KEYBOARD;
                     break;
                 case 0x86:
-                    port.device_type = KEYBOARD_122_KEYS;
+                    port.device_model = KEYBOARD_122_KEYS;
+                    port.device_type = KEYBOARD;
                     break;
                 case 0x90:
-                    port.device_type = JAPANESE_G_KEYBOARD;
+                    port.device_model = JAPANESE_G_KEYBOARD;
+                    port.device_type = KEYBOARD;
                     break;
                 case 0x91:
-                    port.device_type = JAPANESE_P_KEYBOARD;
+                    port.device_model = JAPANESE_P_KEYBOARD;
+                    port.device_type = KEYBOARD;
                     break;
                 case 0x92:
-                    port.device_type = JAPANESE_A_KEYBOARD;
+                    port.device_model = JAPANESE_A_KEYBOARD;
+                    port.device_type = KEYBOARD;
                     break;
             }
             break;
         case 0xAC:
             uint8_t bit = ps2_get_data();
             if (bit == 0xA1) {
-                port.device_type = NCD_SUN_KEYBOARD;
+                port.device_model = NCD_SUN_KEYBOARD;
+                port.device_type = KEYBOARD;
             } else {
 
             }
             break;
         default:
-            port.device_type = DEVICE_NOT_IDENTIFIED;
+            port.device_model = DEVICE_NOT_IDENTIFIED;
+            port.device_type = OTHER;
     }
 }
     
@@ -223,12 +235,13 @@ void ps2_controller_init() {
     }
 
     if(is_dual_channel) {
+        // test port two
         ps2_send_cmd(TEST_SECOND_PORT);
         if(ps2_get_data() != 0x00) {
             serial_write_string("PORT 2 FAILED THE TEST");
             port_2.exists = false;
         } else {
-            serial_write_string("PORT 1 PASSED SELF TEST");
+            serial_write_string("PORT 2 PASSED SELF TEST");
             port_2.exists = true;
         }
     }
@@ -238,84 +251,47 @@ void ps2_controller_init() {
         return;
     }
 
-    if (port_1.exists) {
-        ps2_send_cmd(READ_CONFIGURATION_BYTE);
-        
-        // enable interrupts for port 1
-        config = ps2_get_data();
-        config &= PS2_PORT1_INTERRUPT;
-
-        ps2_send_cmd(WRITE_CONFIGURATION_BYTE);
-        ps2_send_data(config);
-
-        ps2_send_cmd(ENABLE_FIRST_PORT);
-        port_1.enabled = true;
-        serial_write_string("PS2 PORT ONE ENABLED");
-        
-
-        // reset device
-        ps2_port1_send_data(PS2_DEVICE_RESET);
-        uint8_t byte =  ps2_get_data();
-        if (has_timed_out) {
-            port_1.device_type = DEVICE_NOT_CONNECTED;
-        }
-
-        if (byte == PS2_DEVICE_ACKNOWLEDGE || byte == 0xAA) {
-            byte = ps2_get_data();
-            if (byte == 0xFA || byte == PS2_DEVICE_ACKNOWLEDGE) {
-                port_1.device_type = DEVICE_NOT_IDENTIFIED;
-            }
-        } else if (byte == 0xFC) {
-            port_1.device_type = DEVICE_NOT_CONNECTED;
-        }
-
-        if (port_1.device_type == DEVICE_NOT_IDENTIFIED) {
-            // identify the device
-            ps2_port1_send_data(PS2_DEVICE_DISABLE_SCANNING);
-            uint8_t response = ps2_get_data();
-            if (response != PS2_DEVICE_ACKNOWLEDGE) {
-                if (response == PS2_DEVICE_RESEND) {
-                    ps2_port1_send_data(PS2_DEVICE_DISABLE_SCANNING);
-                    response = ps2_get_data();
-                }
-            }
-            
-            ps2_port1_send_data(PS2_DEVICE_IDENTIFY);
-            response = ps2_get_data();
-            if (response != PS2_DEVICE_ACKNOWLEDGE) {
-                if (response == PS2_DEVICE_RESEND) {
-                    ps2_port1_send_data(PS2_DEVICE_DISABLE_SCANNING);
-                    response = ps2_get_data();
-                }
-            }
-            uint8_t first_byte = ps2_get_data();
-            if (!has_timed_out) {
-                identify_ps2_device(port_1, first_byte);
-            } else {
-                port_1.device_type = AT_KEYBOARD;
-            }
-
-            ps2_port1_send_data(PS2_DEVICE_ENABLE_SCANNING);
-            serial_write_string("port 1 identified");
-        }
-
-    }
-
     if (port_2.exists) {
-        // enable interrupts for port 2
+        ps2_send_cmd(DISABLE_FIRST_PORT);
         ps2_send_cmd(READ_CONFIGURATION_BYTE);
+
+        // enable interrupts for port 2
         config = ps2_get_data();
         config &= PS2_PORT2_INTERRUPT;
 
         ps2_send_cmd(WRITE_CONFIGURATION_BYTE);
         ps2_send_data(config);
 
+        // enable the port
         ps2_send_cmd(ENABLE_SECOND_PORT);
+        port_2.enabled = true;
         serial_write_string("PS2 PORT TWO ENABLED");
 
+        // reset device
+        ps2_port2_send_data(PS2_DEVICE_RESET);
 
-        if (port_2.device_type == DEVICE_NOT_IDENTIFIED) {
+        uint8_t resp =  ps2_get_data();
 
+        if (has_timed_out) {
+            port_2.device_type = DEVICE_NOT_CONNECTED;
+        } else {
+            port_2.device_type = OTHER;
+        }
+
+        port_2.device_model = DEVICE_NOT_IDENTIFIED;
+
+        if (resp == PS2_DEVICE_ACKNOWLEDGE || resp == 0xAA) {
+            resp = ps2_get_data();
+            if (resp == 0xFA || resp == PS2_DEVICE_ACKNOWLEDGE) {
+                port_2.device_type = OTHER;
+                port_2.device_model = DEVICE_NOT_IDENTIFIED;
+            }
+        } else if (resp == 0xFC) {
+            port_2.device_type = DEVICE_NOT_CONNECTED;
+            port_2.device_model = DEVICE_NOT_IDENTIFIED;
+        }
+
+        if (port_2.device_model == DEVICE_NOT_IDENTIFIED && port_2.device_type != DEVICE_NOT_CONNECTED) {
             // identify the device
             ps2_port2_send_data(PS2_DEVICE_DISABLE_SCANNING);
             uint8_t response = ps2_get_data();
@@ -338,15 +314,96 @@ void ps2_controller_init() {
             if (!has_timed_out) {
                 identify_ps2_device(port_2, first_byte);
             } else {
-                port_1.device_type = AT_KEYBOARD;
+                port_2.device_model = AT_KEYBOARD;
+                port_2.device_type = KEYBOARD;
                 
             }
+
             ps2_port2_send_data(PS2_DEVICE_ENABLE_SCANNING);
+            if (port_2.device_model != DEVICE_NOT_IDENTIFIED && port_2.device_type != OTHER) {
+                serial_write_string("port two identified");
+            }
         }
-        serial_write_string("port two identified");
+        
+        ps2_send_cmd(ENABLE_FIRST_PORT);
     }
 
-    is_ps2_enabled = true;    
+    if (port_1.exists) {
+        ps2_send_cmd(READ_CONFIGURATION_BYTE);
+        
+        // enable interrupts for port 1
+        config = ps2_get_data();
+        config &= PS2_PORT1_INTERRUPT;
+
+        ps2_send_cmd(WRITE_CONFIGURATION_BYTE);
+        ps2_send_data(config);
+
+        // enable the port
+        ps2_send_cmd(ENABLE_FIRST_PORT);
+        port_1.enabled = true;
+        serial_write_string("PS2 PORT ONE ENABLED");
+        
+
+        // reset device
+        ps2_port1_send_data(PS2_DEVICE_RESET);
+        uint8_t byte =  ps2_get_data();
+
+        if (has_timed_out) {
+            port_1.device_type = DEVICE_NOT_CONNECTED;
+        } else {
+            port_1.device_type = OTHER;
+        }
+
+        port_1.device_model = DEVICE_NOT_IDENTIFIED;
+
+        if (byte == PS2_DEVICE_ACKNOWLEDGE || byte == 0xAA) {
+            byte = ps2_get_data();
+            if (byte == 0xFA || byte == PS2_DEVICE_ACKNOWLEDGE) {
+                port_1.device_type = OTHER;
+                port_1.device_model = DEVICE_NOT_IDENTIFIED;
+            }
+        } else if (byte == 0xFC) {
+            port_1.device_type = DEVICE_NOT_CONNECTED;
+            port_1.device_model = DEVICE_NOT_IDENTIFIED;
+        }
+
+        if (port_1.device_model == DEVICE_NOT_IDENTIFIED && port_1.device_type != DEVICE_NOT_CONNECTED) {
+            // identify the device
+            ps2_port1_send_data(PS2_DEVICE_DISABLE_SCANNING);
+            uint8_t response = ps2_get_data();
+            if (response != PS2_DEVICE_ACKNOWLEDGE) {
+                if (response == PS2_DEVICE_RESEND) {
+                    ps2_port1_send_data(PS2_DEVICE_DISABLE_SCANNING);
+                    response = ps2_get_data();
+                }
+            }
+            
+            ps2_port1_send_data(PS2_DEVICE_IDENTIFY);
+            response = ps2_get_data();
+            if (response != PS2_DEVICE_ACKNOWLEDGE) {
+                if (response == PS2_DEVICE_RESEND) {
+                    ps2_port1_send_data(PS2_DEVICE_DISABLE_SCANNING);
+                    response = ps2_get_data();
+                }
+            }
+            uint8_t first_byte = ps2_get_data();
+            if (!has_timed_out) {
+                identify_ps2_device(port_1, first_byte);
+            } else {
+                port_1.device_model = AT_KEYBOARD;
+                port_1.device_type = KEYBOARD;
+            }
+
+            ps2_port1_send_data(PS2_DEVICE_ENABLE_SCANNING);
+
+            if (port_1.device_model != DEVICE_NOT_IDENTIFIED) {
+                serial_write_string("port 1 identified");
+            }
+        }
+
+    }
+
+    is_ps2_enabled = true;
 }
 
 void ps2_port1_send_data(uint8_t data) {

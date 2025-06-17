@@ -82,6 +82,12 @@ static bool is_dual_channel = false;
 
 enum ps2_device_type {
     DEVICE_NOT_CONNECTED,
+    KEYBOARD,
+    MOUSE,
+    OTHER
+};
+
+enum ps2_device_model {
     DEVICE_NOT_IDENTIFIED,
     AT_KEYBOARD,
     PS2_MOUSE,
@@ -99,6 +105,7 @@ enum ps2_device_type {
 
 struct ps2_port {
     int port_number;
+    enum ps2_device_model device_model;
     enum ps2_device_type device_type;
     bool enabled;
     bool exists;
