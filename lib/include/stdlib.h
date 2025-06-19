@@ -1,6 +1,9 @@
 #ifndef STDLIB_H
 #define STDLIB_H
+
 #include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
 
 
 void reverse(char str[], int length)
@@ -55,4 +58,40 @@ char* itoa(int num, char* str, int base) {
     return str;
 }
 
+
+/**
+ * @brief converts a byte into a null terminated hexadecimal encoded string
+ * 
+ * @param byte the byte to be converted
+ * @param out string which must be atleast 5 chars long
+ */
+void binary_to_hexstr(uint8_t byte, char* out) {
+    // 8 bit value
+    // for hexadecimal we need to seperate into groups of four;
+    //  byte & 0x0F; least significant nibble;
+    //  byte & 0xF0; most significant nibble;
+
+    out[0] = '0';
+    out[1] = 'x';
+
+    //TODO: think about why this doesnt work.
+    // something to do with the conversion
+    // something to do with data type conversion
+    // understand more ascii
+    if((byte & 0xF0) > 9 ) {
+        out[2] = 'A' + (char)(byte & 0xF0);
+    } else {
+        out[2] = '0' + (char)(byte & 0xF0);
+    }
+
+    if((byte & 0x0F) > 9) {
+        out[3] = 'A' + (char)(byte & 0xF0);
+    } else {
+        out[3] = '0' + (char)(byte & 0x0F);
+    }
+    
+    out[4] = '\0';
+}
+
 #endif // STDLIB_H
+ 
