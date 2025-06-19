@@ -120,20 +120,21 @@ int kmain() {
     
 
     terminal_init(&font, framebuffer, 100, 80);
-    terminal_writestring(helloworld);
+    terminal_println(helloworld);
 
     serial_init();
-    serial_write_string("Hello, World!");
-    serial_write_string("\nWelcome to StealthyOS\0");
-    serial_write_string("\nSerial works");
-    terminal_writestring("\nWired up the serial console");
+    serial_write_string("Hello, World!\n");
+    serial_write_string("Welcome to StealthyOS\n");
+    terminal_println("Wired up the serial console\n");
+    
     idt_init();
-    terminal_writestring("\nWired up the Interrupt Descriptor Table");
+    terminal_println("Wired up the Interrupt Descriptor Table\n");
+    
     PIC_init();
-    terminal_writestring("\nWired up the PICs");
-    ps2_controller_init();
-    terminal_writestring("\nWired up the ps2 ports");
+    terminal_println("Wired up the PICs\n");
 
+    ps2_controller_init();
+    terminal_println("Wired up the ps2 ports\n");
     // poll
     hcf();
     return 0;
