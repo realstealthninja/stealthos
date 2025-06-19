@@ -65,6 +65,11 @@ void terminal_writestring(const char* data) {
     }
 }
 
+void terminal_println(const char* data) {
+    terminal_writestring(data);
+    terminal_putchar('\n');
+}
+
 
 
 
