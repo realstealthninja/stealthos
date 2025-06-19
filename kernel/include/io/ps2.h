@@ -114,6 +114,9 @@ struct ps2_port {
 static struct ps2_port port_1;
 static struct ps2_port port_2;
 
+static struct ps2_port keyboard_port;
+static struct ps2_port mouse_port;
+
 void ps2_controller_init();
 
 void ps2_port1_send_data(uint8_t data);

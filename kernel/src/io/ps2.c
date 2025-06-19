@@ -1,5 +1,7 @@
 #include "io/ps2.h"
 #include "io/serial.h"
+#include "stdlib.h"
+#include "tty.h"
 #include "utils.h"
 
 #include <stdint.h>
@@ -91,66 +93,66 @@ uint8_t ps2_get_data() {
     return inb(PS2_CONTROLLER_DATA_PORT);
 }
 
-void identify_ps2_device(struct ps2_port port, uint8_t first_byte) {
+void identify_ps2_device(struct ps2_port* port, uint8_t first_byte) {
     switch (first_byte) {
         case 0x00:
-            port.device_model = PS2_MOUSE;
-            port.device_type = MOUSE;
+            port->device_model = PS2_MOUSE;
+            port->device_type = MOUSE;
             break;
         case 0x03:
-            port.device_model = MOUSE_WITH_SCROLL_WHEEL;
-            port.device_type = MOUSE;
+            port->device_model = MOUSE_WITH_SCROLL_WHEEL;
+            port->device_type = MOUSE;
             break;
         case 0x04:
-            port.device_model = MOUSE_WITH_5_BUTTONS;
-            port.device_type = MOUSE;
+            port->device_model = MOUSE_WITH_5_BUTTONS;
+            port->device_type = MOUSE;
             break;
         case 0xAB:
             uint8_t second_byte = ps2_get_data();
             switch (second_byte) {
                 case 0x83:
                 case 0xC1:
-                    port.device_model = MF2_KEYBOARD;
-                    port.device_type = KEYBOARD;
+                    port->device_model = MF2_KEYBOARD;
+                    port->device_type = KEYBOARD;
                     break;
                 case 0x84:
-                    port.device_model = SHORT_KEYBOARD;
-                    port.device_type = KEYBOARD;
+                    port->device_model = SHORT_KEYBOARD;
+                    port->device_type = KEYBOARD;
                     break;
                 case 0x85:
-                    port.device_model = NCD_N97_KEYBOARD;
-                    port.device_type = KEYBOARD;
+                    port->device_model = NCD_N97_KEYBOARD;
+                    port->device_type = KEYBOARD;
                     break;
                 case 0x86:
-                    port.device_model = KEYBOARD_122_KEYS;
-                    port.device_type = KEYBOARD;
+                    port->device_model = KEYBOARD_122_KEYS;
+                    port->device_type = KEYBOARD;
                     break;
                 case 0x90:
-                    port.device_model = JAPANESE_G_KEYBOARD;
-                    port.device_type = KEYBOARD;
+                    port->device_model = JAPANESE_G_KEYBOARD;
+                    port->device_type = KEYBOARD;
                     break;
                 case 0x91:
-                    port.device_model = JAPANESE_P_KEYBOARD;
-                    port.device_type = KEYBOARD;
+                    port->device_model = JAPANESE_P_KEYBOARD;
+                    port->device_type = KEYBOARD;
                     break;
                 case 0x92:
-                    port.device_model = JAPANESE_A_KEYBOARD;
-                    port.device_type = KEYBOARD;
+                    port->device_model = JAPANESE_A_KEYBOARD;
+                    port->device_type = KEYBOARD;
                     break;
             }
             break;
         case 0xAC:
             uint8_t bit = ps2_get_data();
             if (bit == 0xA1) {
-                port.device_model = NCD_SUN_KEYBOARD;
-                port.device_type = KEYBOARD;
+                port->device_model = NCD_SUN_KEYBOARD;
+                port->device_type = KEYBOARD;
             } else {
 
             }
             break;
         default:
-            port.device_model = DEVICE_NOT_IDENTIFIED;
-            port.device_type = OTHER;
+            port->device_model = DEVICE_NOT_IDENTIFIED;
+            port->device_type = OTHER;
     }
 }
     
@@ -310,9 +312,10 @@ void ps2_controller_init() {
                     response = ps2_get_data();
                 }
             }
+            (void) ps2_get_data(); // get the acknowledge out
             uint8_t first_byte = ps2_get_data();
             if (!has_timed_out) {
-                identify_ps2_device(port_2, first_byte);
+                identify_ps2_device(&port_2, first_byte);
             } else {
                 port_2.device_model = AT_KEYBOARD;
                 port_2.device_type = KEYBOARD;
@@ -320,9 +323,18 @@ void ps2_controller_init() {
             }
 
             ps2_port2_send_data(PS2_DEVICE_ENABLE_SCANNING);
+            
+
             if (port_2.device_model != DEVICE_NOT_IDENTIFIED && port_2.device_type != OTHER) {
-                serial_write_string("port two identified");
+                serial_write_string("port 2 identified");
             }
+            
+            if (port_2.device_type == MOUSE) {
+                mouse_port = port_2;
+            } else if (port_2.device_type == KEYBOARD) {
+                keyboard_port = port_2;
+            }
+
         }
         
         ps2_send_cmd(ENABLE_FIRST_PORT);
@@ -388,7 +400,7 @@ void ps2_controller_init() {
             }
             uint8_t first_byte = ps2_get_data();
             if (!has_timed_out) {
-                identify_ps2_device(port_1, first_byte);
+                identify_ps2_device(&port_1, first_byte);
             } else {
                 port_1.device_model = AT_KEYBOARD;
                 port_1.device_type = KEYBOARD;
@@ -396,10 +408,16 @@ void ps2_controller_init() {
 
             ps2_port1_send_data(PS2_DEVICE_ENABLE_SCANNING);
 
-            if (port_1.device_model != DEVICE_NOT_IDENTIFIED) {
+            if (port_1.device_model != DEVICE_NOT_IDENTIFIED && port_1.device_type != OTHER) {
                 serial_write_string("port 1 identified");
             }
-        }
+
+            if (port_1.device_type == MOUSE) {
+                mouse_port = port_1;
+            } else if (port_1.device_type == KEYBOARD) {
+                keyboard_port = port_1;
+            }
+        } 
 
     }
 
