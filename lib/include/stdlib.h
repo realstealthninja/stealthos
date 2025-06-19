@@ -74,22 +74,22 @@ void binary_to_hexstr(uint8_t byte, char* out) {
     out[0] = '0';
     out[1] = 'x';
 
-    //TODO: think about why this doesnt work.
-    // something to do with the conversion
-    // something to do with data type conversion
-    // understand more ascii
-    if((byte & 0xF0) > 9 ) {
-        out[2] = 'A' + (char)(byte & 0xF0);
+
+    uint8_t LSN = (byte & 0x0F); // least significant nibble
+    uint8_t MSN = (byte & 0xF0) >> 4; // most significant nibble
+
+    if((MSN) > 9 ) {
+        out[2] = 'A' + (MSN - 10);
     } else {
-        out[2] = '0' + (char)(byte & 0xF0);
+        out[2] = '0' + MSN;
     }
 
     if((byte & 0x0F) > 9) {
-        out[3] = 'A' + (char)(byte & 0xF0);
+        out[3] = 'A' +  (LSN - 10);
     } else {
-        out[3] = '0' + (char)(byte & 0x0F);
+        out[3] = '0' + LSN;
     }
-    
+
     out[4] = '\0';
 }
 
