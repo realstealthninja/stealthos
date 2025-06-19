@@ -1,6 +1,6 @@
 project(klib)
 
-add_library(klib src/string.c include/string.h)
+add_library(klib src/string.c src/stdlib.c)
 
 target_include_directories(klib PUBLIC include/)
 
