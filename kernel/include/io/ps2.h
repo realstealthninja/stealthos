@@ -76,8 +76,8 @@
 
 
 
-static bool is_ps2_enabled = false;
-static bool is_dual_channel = false;
+static bool is_ps2_enabled = false; ///< true if ps2 is enabled and initalized
+static bool is_dual_channel = false; ///< true if ps2 port is a dual channel port
 
 
 enum ps2_device_type {
@@ -103,6 +103,10 @@ enum ps2_device_model {
     NCD_SUN_KEYBOARD
 };
 
+/**
+ * @brief describes a ps2 port and what is connected to it
+ * 
+ */
 struct ps2_port {
     int port_number;
     enum ps2_device_model device_model;
@@ -111,15 +115,29 @@ struct ps2_port {
     bool exists;
 };
 
-static struct ps2_port port_1;
-static struct ps2_port port_2;
+static struct ps2_port port_1; ///< physical port 1
+static struct ps2_port port_2; ///< physical port 2
 
-static struct ps2_port keyboard_port;
-static struct ps2_port mouse_port;
+static struct ps2_port keyboard_port; ///< logical keyboard port
+static struct ps2_port mouse_port; ///< logical mouse port
 
+/**
+ * @brief initialises the ps2 controller
+ */
 void ps2_controller_init();
 
+/**
+ * @brief sends data to the first port
+ * 
+ * @param data the data to be sent
+ */
 void ps2_port1_send_data(uint8_t data);
+
+/**
+ * @brief sends data to the second port
+ * 
+ * @param data the data to be sent
+ */
 void ps2_port2_send_data(uint8_t data);
 
 
