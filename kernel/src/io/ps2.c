@@ -1,29 +1,26 @@
 #include "io/ps2.h"
-#include "io/serial.h"
-#include "stdlib.h"
-#include "tty.h"
-#include "utils.h"
 
 #include <stdint.h>
+
+#include "io/serial.h"
+#include "utils.h"
 
 static bool has_timed_out = false;
 
 /**
  * @brief Gets the status of the controller
- * 
- * @return uint8_t 
+ *
+ * @return uint8_t
  */
-uint8_t ps2_status() {
-    return inb(PS2_CONTROLLER_STATUS_PORT);
-}
+uint8_t ps2_status() { return inb(PS2_CONTROLLER_STATUS_PORT); }
 
 /**
  * @brief waits until the input buffer clears
- * 
+ *
  */
 void ps2_wait_for_input() {
     int counter = 0;
-    while((ps2_status() & INPUT_BUFFER_STATUS) != 0) {
+    while ((ps2_status() & INPUT_BUFFER_STATUS) != 0) {
         asm("pause");
         counter++;
 
@@ -37,11 +34,11 @@ void ps2_wait_for_input() {
 
 /**
  * @brief waits for the output buffer to be clear
- * 
+ *
  */
 void ps2_wait_for_ouput() {
     int counter = 0;
-    while(((ps2_status() & OUTPUT_BUFFER_STATUS) != 1)) {
+    while (((ps2_status() & OUTPUT_BUFFER_STATUS) != 1)) {
         asm("pause");
         counter++;
         if (counter > 100) {
@@ -54,16 +51,14 @@ void ps2_wait_for_ouput() {
 
 /**
  * @brief sends a command to ps2 controller
- * 
+ *
  * @param cmd the command to be sent
  */
-void ps2_send_cmd(uint8_t cmd) {
-    outb(PS2_CONTROLLER_COMMAND_REGISTER, cmd);
-}
+void ps2_send_cmd(uint8_t cmd) { outb(PS2_CONTROLLER_COMMAND_REGISTER, cmd); }
 
 /**
  * @brief send data to the ps2 controller
- * 
+ *
  * @param data data to be sent
  */
 void ps2_send_data(uint8_t data) {
@@ -77,7 +72,7 @@ void ps2_send_data(uint8_t data) {
 
 /**
  * @brief gets data from the ps2 controller
- * 
+ *
  * @return uint8_t the data
  */
 uint8_t ps2_get_data() {
@@ -89,7 +84,7 @@ uint8_t ps2_get_data() {
         serial_write_string("Warning: ps2 waiting for output timed out");
         return 0x00;
     }
-    
+
     return inb(PS2_CONTROLLER_DATA_PORT);
 }
 
@@ -147,7 +142,6 @@ void identify_ps2_device(struct ps2_port* port, uint8_t first_byte) {
                 port->device_model = NCD_SUN_KEYBOARD;
                 port->device_type = KEYBOARD;
             } else {
-
             }
             break;
         default:
@@ -155,11 +149,10 @@ void identify_ps2_device(struct ps2_port* port, uint8_t first_byte) {
             port->device_type = OTHER;
     }
 }
-    
 
 void ps2_controller_init() {
-    //TODO: check if ps2 ports exist
-    // disable both the ports
+    // TODO: check if ps2 ports exist
+    //  disable both the ports
     ps2_send_cmd(DISABLE_FIRST_PORT);
     ps2_send_cmd(DISABLE_SECOND_PORT);
 
@@ -167,9 +160,9 @@ void ps2_controller_init() {
     port_1.port_number = 1;
     port_2.enabled = false;
     port_2.port_number = 2;
-    
+
     // discard the junk data
-    (void) ps2_get_data();
+    (void)ps2_get_data();
     serial_write_string("discarded ps2 data");
 
     // read the controller byte
@@ -201,18 +194,18 @@ void ps2_controller_init() {
     // some controllers may reset their config after self test
     ps2_send_cmd(WRITE_CONFIGURATION_BYTE);
     ps2_send_data(config);
-    
+
     // check if it s a dual channel ps2 controller
     ps2_send_cmd(ENABLE_SECOND_PORT);
     ps2_send_cmd(READ_CONFIGURATION_BYTE);
-    
+
     config = ps2_get_data();
     if ((config & PS2_PORT2_CLOCK) == 0) {
         is_dual_channel = true;
-        
+
         ps2_send_cmd(DISABLE_SECOND_PORT);
         ps2_send_cmd(READ_CONFIGURATION_BYTE);
-        
+
         config = ps2_get_data();
         // disable port 2 interrupt
         config &= ~PS2_PORT2_INTERRUPT;
@@ -236,10 +229,10 @@ void ps2_controller_init() {
         port_1.exists = true;
     }
 
-    if(is_dual_channel) {
+    if (is_dual_channel) {
         // test port two
         ps2_send_cmd(TEST_SECOND_PORT);
-        if(ps2_get_data() != 0x00) {
+        if (ps2_get_data() != 0x00) {
             serial_write_string("PORT 2 FAILED THE TEST");
             port_2.exists = false;
         } else {
@@ -272,7 +265,7 @@ void ps2_controller_init() {
         // reset device
         ps2_port2_send_data(PS2_DEVICE_RESET);
 
-        uint8_t resp =  ps2_get_data();
+        uint8_t resp = ps2_get_data();
 
         if (has_timed_out) {
             port_2.device_type = DEVICE_NOT_CONNECTED;
@@ -293,7 +286,8 @@ void ps2_controller_init() {
             port_2.device_model = DEVICE_NOT_IDENTIFIED;
         }
 
-        if (port_2.device_model == DEVICE_NOT_IDENTIFIED && port_2.device_type != DEVICE_NOT_CONNECTED) {
+        if (port_2.device_model == DEVICE_NOT_IDENTIFIED &&
+            port_2.device_type != DEVICE_NOT_CONNECTED) {
             // identify the device
             ps2_port2_send_data(PS2_DEVICE_DISABLE_SCANNING);
             uint8_t response = ps2_get_data();
@@ -303,7 +297,7 @@ void ps2_controller_init() {
                     response = ps2_get_data();
                 }
             }
-            
+
             ps2_port2_send_data(PS2_DEVICE_IDENTIFY);
             response = ps2_get_data();
             if (response != PS2_DEVICE_ACKNOWLEDGE) {
@@ -312,37 +306,35 @@ void ps2_controller_init() {
                     response = ps2_get_data();
                 }
             }
-            (void) ps2_get_data(); // get the acknowledge out
+            (void)ps2_get_data();  // get the acknowledge out
             uint8_t first_byte = ps2_get_data();
             if (!has_timed_out) {
                 identify_ps2_device(&port_2, first_byte);
             } else {
                 port_2.device_model = AT_KEYBOARD;
                 port_2.device_type = KEYBOARD;
-                
             }
 
             ps2_port2_send_data(PS2_DEVICE_ENABLE_SCANNING);
-            
 
-            if (port_2.device_model != DEVICE_NOT_IDENTIFIED && port_2.device_type != OTHER) {
+            if (port_2.device_model != DEVICE_NOT_IDENTIFIED &&
+                port_2.device_type != OTHER) {
                 serial_write_string("port 2 identified");
             }
-            
+
             if (port_2.device_type == MOUSE) {
                 mouse_port = port_2;
             } else if (port_2.device_type == KEYBOARD) {
                 keyboard_port = port_2;
             }
-
         }
-        
+
         ps2_send_cmd(ENABLE_FIRST_PORT);
     }
 
     if (port_1.exists) {
         ps2_send_cmd(READ_CONFIGURATION_BYTE);
-        
+
         // enable interrupts for port 1
         config = ps2_get_data();
         config &= PS2_PORT1_INTERRUPT;
@@ -354,11 +346,10 @@ void ps2_controller_init() {
         ps2_send_cmd(ENABLE_FIRST_PORT);
         port_1.enabled = true;
         serial_write_string("PS2 PORT ONE ENABLED");
-        
 
         // reset device
         ps2_port1_send_data(PS2_DEVICE_RESET);
-        uint8_t byte =  ps2_get_data();
+        uint8_t byte = ps2_get_data();
 
         if (has_timed_out) {
             port_1.device_type = DEVICE_NOT_CONNECTED;
@@ -379,7 +370,8 @@ void ps2_controller_init() {
             port_1.device_model = DEVICE_NOT_IDENTIFIED;
         }
 
-        if (port_1.device_model == DEVICE_NOT_IDENTIFIED && port_1.device_type != DEVICE_NOT_CONNECTED) {
+        if (port_1.device_model == DEVICE_NOT_IDENTIFIED &&
+            port_1.device_type != DEVICE_NOT_CONNECTED) {
             // identify the device
             ps2_port1_send_data(PS2_DEVICE_DISABLE_SCANNING);
             uint8_t response = ps2_get_data();
@@ -389,7 +381,7 @@ void ps2_controller_init() {
                     response = ps2_get_data();
                 }
             }
-            
+
             ps2_port1_send_data(PS2_DEVICE_IDENTIFY);
             response = ps2_get_data();
             if (response != PS2_DEVICE_ACKNOWLEDGE) {
@@ -408,7 +400,8 @@ void ps2_controller_init() {
 
             ps2_port1_send_data(PS2_DEVICE_ENABLE_SCANNING);
 
-            if (port_1.device_model != DEVICE_NOT_IDENTIFIED && port_1.device_type != OTHER) {
+            if (port_1.device_model != DEVICE_NOT_IDENTIFIED &&
+                port_1.device_type != OTHER) {
                 serial_write_string("port 1 identified");
             }
 
@@ -417,22 +410,18 @@ void ps2_controller_init() {
             } else if (port_1.device_type == KEYBOARD) {
                 keyboard_port = port_1;
             }
-        } 
-
+        }
     }
 
     is_ps2_enabled = true;
 }
 
-void ps2_port1_send_data(uint8_t data) {
-    ps2_send_data(data);
-}
+void ps2_port1_send_data(uint8_t data) { ps2_send_data(data); }
 
 void ps2_port2_send_data(uint8_t data) {
     if (!port_2.exists) {
         return;
-    } 
+    }
     ps2_send_cmd(WRITE_BYTE_TO_SECOND_PORT_INPUT_BUFFER);
     ps2_send_data(data);
 }
-
