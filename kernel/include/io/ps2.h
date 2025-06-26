@@ -141,4 +141,6 @@ void ps2_port1_send_data(uint8_t data);
 void ps2_port2_send_data(uint8_t data);
 
 
+uint8_t ps2_get_data();
+
 #endif // PS2_H
