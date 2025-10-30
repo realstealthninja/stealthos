@@ -7,6 +7,8 @@ add_executable(
     src/psf.c
     src/tty.c
     src/io/serial.c
+    src/memory/gdt.c
+    src/memory/gdt.s
     src/interrupts.c
 	src/interrupts.s
 	src/io/keyboard.c
