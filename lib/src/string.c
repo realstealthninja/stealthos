@@ -65,6 +65,18 @@ int cstrcmp(const char *str1, const char *str2) {
     return str1[i] - str2[i];
 }
 
+int cstrncmp(const char *str1, const char* str2, size_t length) {
+    size_t i = 0;
+    for(; i < length; i++) {
+        if (str1[i] != str2[i]) {
+            return str1[i] - str2[i];
+        }
+    }
+
+    return 0;
+
+}
+
 char string_get(const String *str, size_t index) {
     if (index <= str->length) {
         return str->chars[index];

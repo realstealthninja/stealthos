@@ -65,6 +65,8 @@ int memcmp(const void *ptr1, const void *ptr2, size_t num);
  */
 int cstrcmp(const char *str1, const char* str2);
 
+int cstrncmp(const char *str1, const char* str2, size_t length);
+
 char string_get(const String* str, size_t index);
 
 
