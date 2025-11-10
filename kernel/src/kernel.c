@@ -1,9 +1,12 @@
-#include "io/ps2.h"
+#include "apic.h"
 #include "io/serial.h"
+#include "pic.h"
 #include "stdlib.h"
 #include "tty.h"
 #include "interrupts.h"
-#include "pic.h"
+#include "memory/gdt.h"
+#include "power/acpi.h"
+
 #include <stddef.h>
 #include <stdbool.h>
 #include <limine.h>
@@ -12,7 +15,7 @@
 
 
 __attribute__((used, section(".limine_requests")))
-static volatile LIMINE_BASE_REVISION(3);
+static volatile LIMINE_BASE_REVISION(4);
 
 __attribute__((used, section(".limine_requests")))
 static volatile struct limine_framebuffer_request framebuffer_request = {
@@ -20,7 +23,7 @@ static volatile struct limine_framebuffer_request framebuffer_request = {
     .revision = 0
 };
 
-// ask for the modules
+// ask for the modules 
 __attribute__((used, section(".limine_requests")))
 static volatile struct limine_module_request module_request = {
     .id = LIMINE_MODULE_REQUEST,
@@ -37,7 +40,6 @@ static volatile LIMINE_REQUESTS_END_MARKER;
 
 // Halt and catch fire function.
 static void hcf(void) {
-    asm("cli");
     for (;;) {
         asm ("hlt");
     }
@@ -127,15 +129,29 @@ int kmain() {
     serial_write_string("Welcome to StealthyOS\n");
     terminal_println("Wired up the serial console\n");
     
+    gdt_init();
+    terminal_println("wired up the Global Descriptor Table\n");
+
     idt_init();
     terminal_println("Wired up the Interrupt Descriptor Table\n");
-    
-    PIC_init();
-    terminal_println("Wired up the PICs\n");
 
-    ps2_controller_init();
-    terminal_println("Wired up the ps2 ports\n");
-    // poll
+    acpi_init();
+
+    terminal_println("Finding ACPI tables");
+    terminal_write(xsdt->header.OEMID, 6);
+    terminal_println("");
+
+    PIC_disable();
+    enable_apic();
+    terminal_println("Enabling APIC\n");
+    //PIC_init();
+    //terminal_println("Wired up the PICs\n");
+
+
+
+    //ps2_controller_init();
+    //terminal_println("Wired up the ps2 ports\n");
+
     hcf();
     return 0;
 }
