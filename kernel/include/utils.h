@@ -31,5 +31,6 @@ static inline uint8_t inb(
 static inline void io_wait(void) {
     outb(0x80, 0);
 }
-
+void cpu_set_msr(uint32_t msr, uint32_t low, uint32_t high);
+void cpu_get_msr(uint32_t msr, uint32_t* low, uint32_t* high);
 #endif // UTILS_H

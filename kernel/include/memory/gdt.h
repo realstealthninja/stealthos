@@ -48,13 +48,17 @@
 
 #define GDT_LENGTH 7
 
-struct GDTR {
+struct GDTR_t {
     uint16_t limit;
     uint64_t address;
 } __attribute__((packed));
 
 static uint64_t gdt_entries[GDT_LENGTH];
-static struct GDTR gdtr;
+static struct GDTR_t gdtr;
+
+/**
+ * @brief Reloads all segments
+ */
 extern void reload_seg();
 
 /**
