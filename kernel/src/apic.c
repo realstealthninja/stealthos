@@ -31,6 +31,6 @@ uintptr_t cpu_get_apic_address() {
 
 void enable_apic() {
     cpu_set_apic_address(cpu_get_apic_address());
-    outb(0xF0, inb(0xF0) | 0x100);
+    write_register(0xF0, read_register(0xF0) | 0x100);
 }
 

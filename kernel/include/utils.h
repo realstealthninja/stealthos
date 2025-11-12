@@ -33,4 +33,7 @@ static inline void io_wait(void) {
 }
 void cpu_set_msr(uint32_t msr, uint32_t low, uint32_t high);
 void cpu_get_msr(uint32_t msr, uint32_t* low, uint32_t* high);
+
+void write_register(uint32_t reg, uint64_t value);
+uint64_t read_register(uint32_t reg);
 #endif // UTILS_H
