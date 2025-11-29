@@ -9,11 +9,16 @@ add_executable(
     src/io/serial.c
     src/memory/gdt.c
     src/memory/gdt.s
+    src/power/acpi.c
     src/interrupts.c
 	src/interrupts.s
 	src/io/keyboard.c
-    src/pic.c
 	src/io/ps2.c
+    src/pic.c
+	src/apic.c
+	src/utils.c
+
+    src/hhdm.c
 )
 set(CMAKE_C_STANDARD 23)
 target_link_libraries(kernel.elf PRIVATE klib)
@@ -21,6 +26,7 @@ target_include_directories(kernel.elf PRIVATE include/ ../extern/limine)
 
 target_compile_options(
     kernel.elf
+	PRIVATE "-g"
     PRIVATE "-Wall"
     PRIVATE "-Wextra"
     PRIVATE "-ffreestanding"
