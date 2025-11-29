@@ -10,7 +10,7 @@
  * @brief Root system descriptor pointer
  */
 struct RSDP_t {
-    char signature[5];
+    char signature[8];
     uint8_t checksum;
     char OEMID[6];
     uint8_t revision;
@@ -61,14 +61,17 @@ struct RSDT_t {
     uint32_t SDTs[];
 };
 
-static union SDT {
-    struct XSDT_t* xsdt;
-    struct RSDT_t* rsdt;
-} sdt;
+struct SDT {
+    union {
+        struct XSDT_t *xsdt;
+        struct RSDT_t *rsdt;
+    };
+    size_t table_count;
+    bool is_system_descriptor_extended;
+};
 
-static struct XSDT_t* xsdt;
-static size_t table_count;
-static bool is_system_descriptor_extended  = false;
+static struct SDT sdt;
+
 
 void acpi_init();
 void* find_SDT(const char* signature, size_t length);
