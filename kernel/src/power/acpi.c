@@ -43,23 +43,18 @@ struct SDT* get_sdt() {
 
 
 void* find_SDT(const char* signature, size_t length) {
-    if(sdt.is_system_descriptor_extended) {
-        struct XSDT_t* root = sdt.xsdt;
-        for(size_t i = 0; i < sdt.table_count; i++) {
-            struct ACPISDTHeader_t* header = (struct ACPISDTHeader_t*) to_virtual_addr(root->SDTs[i]);
-            if (cstrncmp(header->signature, signature, length) == 0) {
-                return (void*) header;
-            }
+    struct ACPISDTHeader_t* header;  
+
+    for(size_t i = 0; i < sdt.table_count; i++) {
+        if (sdt.is_system_descriptor_extended) {
+            header = (struct ACPISDTHeader_t*) to_virtual_addr(sdt.xsdt->SDTs[i]);
+        } else {
+            header = (struct ACPISDTHeader_t*) to_virtual_addr(sdt.rsdt->SDTs[i]);
         }
 
-    } else {
-        struct RSDT_t* root = sdt.rsdt;
-        for(size_t i = 0; i < sdt.table_count; i++) {
-            struct ACPISDTHeader_t* header = (struct ACPISDTHeader_t*) to_virtual_addr(root->SDTs[i]); 
-            if (cstrncmp(header->signature, signature, length) == 0) {
-                return (void*) header;
-            }
-        } 
+        if (cstrncmp(header->signature, signature, length) == 0) {
+            return (void*) header;
+        }
     }
 
     return NULL;
