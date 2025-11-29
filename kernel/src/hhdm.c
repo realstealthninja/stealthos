@@ -16,3 +16,7 @@ uint64_t hhdm_get_offset() {
     }
     return hhdm_offset;
 }
+
+uint64_t to_virtual_addr(uint64_t address) {
+    return address + hhdm_get_offset();
+}
