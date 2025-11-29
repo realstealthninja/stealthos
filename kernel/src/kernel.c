@@ -138,12 +138,12 @@ int kmain() {
     acpi_init();
 
     terminal_println("Finding ACPI tables");
-    terminal_write(xsdt->header.OEMID, 6);
-    terminal_println("");
 
     PIC_disable();
     enable_apic();
     terminal_println("Enabling APIC\n");
+    struct ACPISDTHeader_t* table = find_SDT("FDAT", 4);
+
     //PIC_init();
     //terminal_println("Wired up the PICs\n");
 
