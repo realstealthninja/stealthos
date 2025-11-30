@@ -5,6 +5,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "tables.h"
+
 /**
  * @struct RSDP_t
  * @brief Root system descriptor pointer
@@ -16,7 +18,6 @@ struct RSDP_t {
     uint8_t revision;
     uint32_t rsdt_address;
 } __attribute__((packed));
-
 
 /**
  * @struct XSDP_t
@@ -35,18 +36,6 @@ struct XSDP_t {
     uint8_t reserved[3];
 } __attribute__((packed));
 
-struct ACPISDTHeader_t {
-    char signature[4];
-    uint32_t length;
-    uint8_t revision;
-    uint8_t checksum;
-    char OEMID[6];
-    char OEMTableID[8];
-    uint32_t OEMRevision;
-    uint32_t creatorID;
-    uint32_t creatorRevision;
-} __attribute__((packed));
-
 /**
  * @struct XSDT_t
  * @brief Extended system descriptor table
@@ -56,11 +45,21 @@ struct XSDT_t {
     uint64_t SDTs[];
 } __attribute__((packed));
 
+
+/**
+ * @struct RSDT_t
+ * @brief Root System Descriptor Table
+ */
 struct RSDT_t {
     struct ACPISDTHeader_t header;
     uint32_t SDTs[];
-};
+} __attribute__((packed));
 
+
+/**
+ * @struct SDT
+ * @brief Represents the System Descriptor table
+ */
 struct SDT {
     union {
         struct XSDT_t *xsdt;
@@ -72,8 +71,16 @@ struct SDT {
 
 static struct SDT sdt;
 
-
+/**
+ * @brief Finds rdsp or xdsp and parses the rdst or xdst respectively
+ */
 void acpi_init();
+
+/**
+ * @brief finds The address of a specified system descriptor table
+ * @param signature The signature of the specified SDT
+ * @param length The length of the signature string
+ */
 void* find_SDT(const char* signature, size_t length);
 
 #endif // ACPI_H
