@@ -1,10 +1,7 @@
-#include "apic.h"
+#include "interrupts/interrupts.h"
 #include "io/serial.h"
-#include "pic.h"
 #include "stdlib.h"
 #include "tty.h"
-#include "interrupts.h"
-#include "memory/gdt.h"
 #include "power/acpi.h"
 
 #include <stddef.h>
@@ -129,27 +126,11 @@ int kmain() {
     serial_write_string("Welcome to StealthyOS\n");
     terminal_println("Wired up the serial console\n");
     
-    gdt_init();
-    terminal_println("wired up the Global Descriptor Table\n");
-
-    idt_init();
-    terminal_println("Wired up the Interrupt Descriptor Table\n");
-
     acpi_init();
 
-    terminal_println("Finding ACPI tables");
-
-    PIC_disable();
-    enable_apic();
-    terminal_println("Enabling APIC\n");
-    struct ACPISDTHeader_t* table = find_SDT("FDAT", 4);
-
-    //PIC_init();
-    //terminal_println("Wired up the PICs\n");
-
-
-
-    //ps2_controller_init();
+    setup_interrupts();
+    terminal_println("Enabled Interrupts");
+   //ps2_controller_init();
     //terminal_println("Wired up the ps2 ports\n");
 
     hcf();

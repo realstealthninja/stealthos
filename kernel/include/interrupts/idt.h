@@ -1,5 +1,5 @@
-#ifndef INTERRUPTS_H
-#define INTERRUPTS_H
+#ifndef IDT_H
+#define IDT_H
 
 #include <stdint.h>
 
@@ -73,4 +73,6 @@ void idt_install_irq_handler(int8_t vector, void* handler);
 
 void idt_init(void);
 
-#endif // INTERRUPTS_H
+
+
+#endif // IDT_H

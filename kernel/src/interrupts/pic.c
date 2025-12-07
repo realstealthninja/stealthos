@@ -1,4 +1,4 @@
-#include "pic.h"
+#include "interrupts/pic.h"
 #include "utils.h"
 
 void PIC_sendEOI(uint8_t irq) {

@@ -1,4 +1,4 @@
-#include "apic.h"
+#include "interrupts/apic.h"
 
 #include <stdbool.h>
 #include <cpuid.h>
@@ -43,13 +43,27 @@ void find_ioapic() {
     ioapic_adddress = (void*)to_virtual_addr(madt.io_apic->io_apic_address);
 }
 
+uint32_t read_ioapic(uint32_t reg) {
+    uint32_t volatile *ioapic = (uint32_t volatile*) ioapic_adddress;
+    ioapic[0] = (reg & 0xff);
+    return ioapic[4];
+}
+
+void write_ioapic(uint32_t reg, uint32_t value) {
+    uint32_t volatile *ioapic = (uint32_t volatile *) ioapic_adddress;
+    ioapic[0] = (reg & 0xff);
+    ioapic[4] = value;
+}
+
 
 void enable_apic() {
     cpu_set_apic_address(cpu_get_apic_address());
-    write_register(0xF0, read_register(0xF0) | 0x100);
+    write_register(cpu_get_apic_address() + APIC_TPR, 0x00);
+    write_register(cpu_get_apic_address() + APIC_SVR, read_register(cpu_get_apic_address() + APIC_SVR));
 }
 
-void init_apic() {
+
+void apic_init() {
     enable_apic();
     find_ioapic();
 }

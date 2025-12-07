@@ -47,7 +47,7 @@ isr_stub_\num\():
 
 
 .section .text
-
+.extern interrupt_dispatcher
 interrupt_stub:
     pushaq
 
@@ -61,7 +61,6 @@ interrupt_stub:
 
 # the macros with the second arugment have a predefined error thus
 # dummy error is unnecessary
-.global isr_stub_0
 isr_stub 0
 isr_stub 1
 isr_stub 2
@@ -94,3 +93,13 @@ isr_stub 28
 isr_stub 29
 isr_stub 30 1
 isr_stub 31
+isr_stub 240
+
+
+.section .data
+
+.global isr_stub_table
+isr_stub_table:
+.rept 32
+    .quad isr_stub_\+
+.endr

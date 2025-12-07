@@ -10,14 +10,14 @@ add_executable(
     src/memory/gdt.c
     src/memory/gdt.s
     src/power/acpi.c
-    src/interrupts.c
-	src/interrupts.s
+    src/power/madt.c
+    src/interrupts/interrupts.c
+    src/interrupts/apic.c
+	src/interrupts/idt.c
 	src/io/keyboard.c
 	src/io/ps2.c
     src/pic.c
-	src/apic.c
 	src/utils.c
-
     src/hhdm.c
 )
 set(CMAKE_C_STANDARD 23)
