@@ -1,9 +1,9 @@
 .section .text
 .global reload_seg
 reload_seg:
-    push $0x08
+    pushq $0x08
     leaq reload_cs, %rax
-    push %rax
+    pushq %rax
     retfq
 
 reload_cs:
@@ -12,6 +12,6 @@ reload_cs:
     mov %ax, %es
     mov %ax, %fs
     mov %ax, %gs
-    mov %ax, %gs
+    mov %ax, %ss
     ret
 
