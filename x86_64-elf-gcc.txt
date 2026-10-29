@@ -1,0 +1,16 @@
+[binaries]
+c = 'x86_64-elf-gcc'
+cpp = 'x86_64-elf-gcc'
+as = 'x86_64-elf-gcc'
+ld = 'x86_64-elf-ld'
+
+# machine where the compiled binary runs is called host
+[host_machine]
+system = 'stealthos'
+cpu_family = 'x86_64'
+cpu = 'x86_64'
+endian = 'little'
+
+[properties]
+c_stdlib = ['klib', 'klib_dep']
+root = '/usr/local/cross/'

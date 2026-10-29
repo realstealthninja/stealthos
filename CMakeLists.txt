@@ -1,52 +1,58 @@
-cmake_minimum_required(VERSION 3.30)
+project(kernel)
 
-project(StealthOS VERSION 0.1.0 LANGUAGES C ASM)
-set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
+add_executable(
+    kernel.elf
+    src/kernel.c
+    src/vga.c
+    src/psf.c
+    src/tty.c
+    src/io/serial.c
+    src/memory/gdt.c
+    src/memory/gdt.s
+    src/power/acpi.c
+    src/power/madt.c
+    src/interrupts/interrupts.c
+    src/interrupts/apic.c
+	src/interrupts/pic.c
+	src/interrupts/idt.c
+    src/interrupts/idt.s
+	src/io/keyboard.c
+	src/io/ps2.c
+	src/utils.c
+    src/hhdm.c
+)
+set(CMAKE_C_STANDARD 23)
+target_link_libraries(kernel.elf PRIVATE klib)
+target_include_directories(kernel.elf PRIVATE include/ ../extern/limine)
 
-add_subdirectory(lib/)
-add_subdirectory(kernel/)
-
-set(CMAKE_BUILD_TYPE Debug)
-
-# command to generate stealthos.iso
-add_custom_command(
-    OUTPUT ${CMAKE_BINARY_DIR}/stealthos.iso
-    COMMAND ${CMAKE_COMMAND} -E chdir ../extern/limine/ make
-    COMMAND ${CMAKE_COMMAND} -E make_directory "iso/boot/limine"
-    COMMAND ${CMAKE_COMMAND} -E make_directory "iso/boot/assets"
-
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_BINARY_DIR}/kernel/kernel.elf ${CMAKE_BINARY_DIR}/iso/boot/kernel.elf
-    COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different ${CMAKE_SOURCE_DIR}/assets/ ${CMAKE_BINARY_DIR}/iso/boot/assets/
-
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/iso/limine.conf ${CMAKE_BINARY_DIR}/iso/boot/limine/limine.conf
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different ../extern/limine/limine-bios.sys ${CMAKE_BINARY_DIR}/iso/boot/limine/limine-bios.sys
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different ../extern/limine/limine-bios-cd.bin ${CMAKE_BINARY_DIR}/iso/boot/limine/limine-bios-cd.bin
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different ../extern/limine/limine-uefi-cd.bin ${CMAKE_BINARY_DIR}/iso/boot/limine/limine-uefi-cd.bin
-
-
-    COMMAND ${CMAKE_COMMAND} -E make_directory "iso/EFI/BOOT"
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different ../extern/limine/BOOTX64.EFI ${CMAKE_BINARY_DIR}/iso/EFI/BOOT/BOOTX64.EFI
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different ../extern/limine/BOOTIA32.EFI ${CMAKE_BINARY_DIR}/iso/EFI/BOOT/BOOTIA32.EFI
-
-    
-
-
-
-    COMMAND xorriso ARGS -as mkisofs -R
-                        -r -J -b boot/limine/limine-bios-cd.bin
-                        -no-emul-boot -boot-load-size 4 -boot-info-table -hfsplus
-                        -apm-block-size 2048 --efi-boot /boot/limine/limine-uefi-cd.bin
-                        -efi-boot-part --efi-boot-image --protective-msdos-label ${CMAKE_BINARY_DIR}/iso
-                        -o stealthos.iso
-    COMMAND ../extern/limine/limine bios-install stealthos.iso
-    DEPENDS ${CMAKE_BINARY_DIR}/kernel/kernel.elf
+target_compile_options(
+    kernel.elf
+	PRIVATE "-g"
+    PRIVATE "-Wall"
+    PRIVATE "-Wextra"
+    PRIVATE "-ffreestanding"
+    PRIVATE "-fno-stack-protector"
+	PRIVATE "-fno-stack-check"
+	PRIVATE "-fno-lto"
+	PRIVATE "-fPIE"
+	PRIVATE "-m64"
+	PRIVATE "-mcmodel=large"	
+	PRIVATE "-march=x86-64"
+	PRIVATE "-mno-80387"
+	PRIVATE "-mno-mmx"
+	PRIVATE "-mno-sse"
+	PRIVATE "-mno-sse2"
+	PRIVATE "-mno-red-zone"
+	PRIVATE "-save-temps"
 )
 
-# you call build this target via
-# cmake --build . --target iso
-add_custom_target(iso
-    DEPENDS ${CMAKE_BINARY_DIR}/stealthos.iso
+target_link_options(
+	kernel.elf
+	PUBLIC "-ffreestanding"
+	PUBLIC "-nostdlib"
+	PUBLIC "-mcmodel=kernel"
+	PUBLIC "-static"
+	PUBLIC "-pie"
+	PUBLIC "-T${CMAKE_SOURCE_DIR}/kernel/boot/link.ld"
 )
 
-
-#   run bochs -f bochsrc.txt -q
