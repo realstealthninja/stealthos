@@ -32,7 +32,7 @@
 // kernel code
 #define GDT_CODE_PL0 SEG_DESCTYPE(1) | SEG_PRES(1) | SEG_SAVL(0) | \
                      SEG_LONG(1)     | SEG_SIZE(1) | SEG_GRAN(1) | \
-                     SEG_PRIV(0)     | SEG_CODE_EXRD
+                     SEG_PRIV(0)     | SEG_CODE_EXRDA
 // kernel data 
 #define GDT_DATA_PL0 SEG_DESCTYPE(1) | SEG_PRES(1) | SEG_SAVL(0) | \
                      SEG_LONG(1)     | SEG_SIZE(1) | SEG_GRAN(1) | \
@@ -46,16 +46,12 @@
                      SEG_LONG(1)     | SEG_SIZE(1) | SEG_GRAN(1) | \
                      SEG_PRIV(3)     | SEG_DATA_RDWR
 
-#define GDT_LENGTH 7
+#define GDT_LENGTH 5
 
 struct GDTR_t {
     uint16_t limit;
     uint64_t address;
 } __attribute__((packed));
-
-static uint64_t gdt_entries[GDT_LENGTH];
-static struct GDTR_t gdtr;
-
 /**
  * @brief Reloads all segments
  */
@@ -66,7 +62,7 @@ extern void reload_seg();
  * @param base the base of the descriptor
  * @param limit the limit of the descritor
  * @param flag the flag of the descriptor
- * @return uint64_t the descriptor to be returned 
+ * @return uint64_t the created descriptor 
  */
 uint64_t create_gdt_descriptor(uint32_t base, uint32_t limit, uint16_t flag);
 

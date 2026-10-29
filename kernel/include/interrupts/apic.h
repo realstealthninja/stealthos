@@ -2,6 +2,7 @@
 #define APIC_H
 
 #include <stdbool.h>
+#include <stdint.h>
 
 #define IA32_APIC_BASE_MSR 0x1B
 #define IA32_APIC_BASE_MSR_BSP 0x100 // Processor is a BSP
@@ -10,6 +11,11 @@
 
 #define APIC_SVR 0xf0
 #define APIC_TPR 0x80
+
+
+#define IOAPICREDTBL(n) (0x10 + 2 * n)
+
+
 
 /**
  * @brief Checks whether APIC exists
@@ -25,5 +31,12 @@ void enable_apic();
  * @brief Initalises and enables APIC
  */
 void apic_init();
+
+
+uint32_t read_ioapic(uint32_t reg);
+
+void write_ioapic(uint32_t reg, uint32_t value);
+
+
 
 #endif // APIC_H
