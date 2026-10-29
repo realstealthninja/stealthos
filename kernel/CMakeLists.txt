@@ -13,10 +13,11 @@ add_executable(
     src/power/madt.c
     src/interrupts/interrupts.c
     src/interrupts/apic.c
+	src/interrupts/pic.c
 	src/interrupts/idt.c
+    src/interrupts/idt.s
 	src/io/keyboard.c
 	src/io/ps2.c
-    src/pic.c
 	src/utils.c
     src/hhdm.c
 )

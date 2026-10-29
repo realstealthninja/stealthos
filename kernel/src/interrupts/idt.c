@@ -1,5 +1,7 @@
 #include <stdint.h>
 #include <stdbool.h>
+#include "interrupts/apic.h"
+#include "io/keyboard.h"
 #include "io/serial.h"
 
 #include "interrupts/idt.h" 
@@ -31,6 +33,7 @@ void idt_set_descriptor(uint8_t vector, void* isr, uint8_t flags, uint8_t ist) {
 void idt_install_irq_handler(int8_t vector, void *handler) {
     irq_handlers[vector] = (uint64_t)handler;
     idt_set_descriptor(vector, isr_stub_table[vector], IDT_DESCRIPTOR_EXTERNAL, 0); 
+    vectors[vector] = true;
 }
 
 /**
@@ -69,8 +72,12 @@ struct cpu_status_t* interrupt_dispatcher(struct cpu_status_t* context) {
         case 14:
             serial_write_string("Page fault... panic\n\0");
             break;
+
+
+        case 33:
+            keyboard_handler();
+            write_ioapic(0xB0, 0); // write 0 to EOI register
         default:
-            serial_write_string("Unexpected interrupt...\n\0");
             break;
     }
     return context;

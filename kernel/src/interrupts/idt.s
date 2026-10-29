@@ -93,6 +93,9 @@ isr_stub 28
 isr_stub 29
 isr_stub 30 1
 isr_stub 31
+
+isr_stub 33 ; keyboard
+
 isr_stub 240
 
 
