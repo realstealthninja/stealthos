@@ -1,5 +1,7 @@
 #include "interrupts/interrupts.h"
+#include "io/keyboard.h"
 #include "io/serial.h"
+#include "io/ps2.h"
 #include "stdlib.h"
 #include "tty.h"
 #include "power/acpi.h"
@@ -56,6 +58,9 @@ struct limine_file* get_file(const char* path) {
     return NULL;
 }
 
+void hello_interrupt() {
+    serial_write_string("Hello interrupt 32 has been triggered\n\0");
+}
 
 /**
  * @brief Entry point of the os.
@@ -130,8 +135,14 @@ int kmain() {
 
     setup_interrupts();
     terminal_println("Enabled Interrupts");
-   //ps2_controller_init();
-    //terminal_println("Wired up the ps2 ports\n");
+
+
+
+   ps2_controller_init();
+   terminal_println("Wired up the ps2 ports\n");
+   keyboard_init();
+
+
 
     hcf();
     return 0;

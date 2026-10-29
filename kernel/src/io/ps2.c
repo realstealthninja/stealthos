@@ -24,7 +24,7 @@ void ps2_wait_for_input() {
         asm("pause");
         counter++;
 
-        if (counter > 1000) {
+        if (counter > 10000) {
             has_timed_out = true;
             return;
         }
@@ -41,7 +41,7 @@ void ps2_wait_for_ouput() {
     while (((ps2_status() & OUTPUT_BUFFER_STATUS) != 1)) {
         asm("pause");
         counter++;
-        if (counter > 100) {
+        if (counter > 1000) {
             has_timed_out = true;
             return;
         }
