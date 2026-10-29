@@ -1,6 +1,7 @@
 *.o
 *.elf
 *.iso
+.asm-lsp.toml
 
 *log.txt
 stage2_eltorito
