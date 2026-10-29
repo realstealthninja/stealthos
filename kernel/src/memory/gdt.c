@@ -1,6 +1,10 @@
 #include "memory/gdt.h"
 #include <stdint.h>
 
+uint64_t gdt_entries[GDT_LENGTH];
+struct GDTR_t gdtr;
+
+
 uint64_t create_gdt_descriptor(uint32_t base, uint32_t limit, uint16_t flag) {
     uint64_t descriptor;
     descriptor =  limit & 0xF0000;
@@ -31,7 +35,7 @@ void gdt_init() {
 
 
     gdtr.limit = GDT_LENGTH * sizeof(uint64_t) - 1;
-    gdtr.address = (uint64_t) gdt_entries;
+    gdtr.address = (uintptr_t) gdt_entries;
 
     asm("lgdt %0" : : "m"(gdtr)); // load gdt
     reload_seg();
